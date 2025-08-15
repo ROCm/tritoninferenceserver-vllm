@@ -332,6 +332,9 @@ class BuildScript:
                 f"  git clone --recursive --single-branch --depth=1 -b {tag} {org}/{repo}.git {subdir};",
                 check_exitcode=True,
             )
+            # Patching https://github.com/triton-inference-server/python_backend/blob/r23.10/CMakeLists.txt
+            # by updating boost_1_79_0.tar.gz source URL
+            self.cmd("sed -i 's|URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz|URL https://archives.boost.io/release/1.79.0/source/boost_1_79_0.tar.gz|' /tmp/tritonbuild/python/CMakeLists.txt")
             self.cmd("}" if target_platform() == "windows" else "fi")
 
 
@@ -1075,7 +1078,8 @@ RUN pip3 install --upgrade pip && \
 # Install boost version >= 1.78 for boost::span
 # Current libboost-dev apt packages are < 1.78, so install from tar.gz
 RUN wget -O /tmp/boost.tar.gz \
-        https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz && \
+        # Updated boost_1_80_0.tar.gz download URL
+        https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.gz && \            
     (cd /tmp && tar xzf boost.tar.gz) && \
     mv /tmp/boost_1_80_0/boost /usr/include/boost
 
